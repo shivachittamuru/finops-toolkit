@@ -1,0 +1,79 @@
+workload:
+  id: rag-assistant
+  name: Enterprise Knowledge Assistant
+  type: rag_knowledge_assistant
+
+work:
+  unit_type: user_question
+  description: One user question submitted to an enterprise knowledge assistant
+
+accepted_work:
+  definition: Answer meets the defined correctness, grounding, and relevance threshold
+  evidence_sources:
+    - application_telemetry
+    - quality_evaluation
+
+outcomes:
+  - id: task_completion_rate
+    metric: user_task_completion_rate
+    unit: percent
+    direction: increase
+    evidence_sources:
+      - application_telemetry
+      - user_feedback
+    attribution:
+      method: matched_comparison
+      evidence_sources:
+        - user_feedback
+        - application_telemetry
+
+  - id: time_to_answer
+    metric: average_time_to_answer
+    unit: minutes
+    direction: decrease
+    evidence_sources:
+      - application_telemetry
+    attribution:
+      method: before_after
+      evidence_sources:
+        - application_telemetry
+
+  - id: escalation_rate
+    metric: human_escalation_rate
+    unit: percent
+    direction: decrease
+    evidence_sources:
+      - application_telemetry
+      - support_system
+    attribution:
+      method: matched_comparison
+      evidence_sources:
+        - support_system
+
+values:
+  - id: productivity_value
+    metric: employee_productivity_value
+    unit: USD
+    method: modeled_from_time_saved
+    derived_from_outcomes:
+      - time_to_answer
+    evidence_sources:
+      - workforce_cost_model
+
+  - id: avoided_escalation_cost
+    metric: avoided_support_cost
+    unit: USD
+    method: modeled_from_escalation_reduction
+    derived_from_outcomes:
+      - escalation_rate
+    evidence_sources:
+      - support_cost_model
+
+  - id: task_completion_value
+    metric: task_completion_value
+    unit: USD
+    method: modeled_from_task_completion_improvement
+    derived_from_outcomes:
+      - task_completion_rate
+    evidence_sources:
+      - business_value_model

@@ -1,0 +1,4 @@
+WorkloadId,Period,OutcomeId,Metric,Unit,BaselineValue,ObservedValue,OutcomeChange,EvidenceStatus,AttributionMethod,AttributionStatus
+rag-assistant,2026-09,task_completion_rate,user_task_completion_rate,percent,62,74,+12pp,OBSERVED,matched_comparison,ATTRIBUTED
+rag-assistant,2026-09,time_to_answer,average_time_to_answer,minutes,10,6,-40%,OBSERVED,before_after,OBSERVED
+rag-assistant,2026-09,escalation_rate,human_escalation_rate,percent,22,16,-6pp,OBSERVED,matched_comparison,ATTRIBUTED

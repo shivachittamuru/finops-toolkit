@@ -1,0 +1,135 @@
+let workloadId = "rag-assistant";
+let period = "2026-09";
+
+let OutcomeEvidence =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        OutcomeId:string,
+        Metric:string,
+        Unit:string,
+        BaselineValue:real,
+        ObservedValue:real,
+        OutcomeChange:string,
+        EvidenceStatus:string,
+        AttributionMethod:string,
+        AttributionStatus:string
+    )
+    [
+        "rag-assistant", "2026-09", "task_completion_rate",
+        "user_task_completion_rate", "percent",
+        62.0, 74.0, "+12pp",
+        "OBSERVED", "matched_comparison", "ATTRIBUTED",
+
+        "rag-assistant", "2026-09", "time_to_answer",
+        "average_time_to_answer", "minutes",
+        10.0, 6.0, "-40%",
+        "OBSERVED", "before_after", "OBSERVED",
+
+        "rag-assistant", "2026-09", "escalation_rate",
+        "human_escalation_rate", "percent",
+        22.0, 16.0, "-6pp",
+        "OBSERVED", "matched_comparison", "ATTRIBUTED"
+    ];
+
+let ValueEvidence =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        ValueId:string,
+        Metric:string,
+        Unit:string,
+        Amount:real,
+        ValueMethod:string,
+        DerivedFromOutcomeIds:string,
+        EvidenceStatus:string
+    )
+    [
+        "rag-assistant", "2026-09", "productivity_value",
+        "employee_productivity_value", "USD",
+        200000.0, "modeled_from_time_saved",
+        "time_to_answer", "MODELED",
+
+        "rag-assistant", "2026-09", "avoided_escalation_cost",
+        "avoided_support_cost", "USD",
+        80000.0, "modeled_from_escalation_reduction",
+        "escalation_rate", "MODELED",
+
+        "rag-assistant", "2026-09", "task_completion_value",
+        "task_completion_value", "USD",
+        140000.0, "modeled_from_task_completion_improvement",
+        "task_completion_rate", "MODELED"
+    ];
+
+let OutcomeGaps =
+    OutcomeEvidence
+    | where WorkloadId == workloadId and Period == period
+    | where EvidenceStatus != "INCREMENTAL"
+        or AttributionStatus != "INCREMENTAL"
+    | extend
+        GapType = case(
+            EvidenceStatus == "UNKNOWN", "MISSING_EVIDENCE",
+            EvidenceStatus == "MODELED", "MODELED_ONLY",
+            AttributionStatus == "UNKNOWN", "ATTRIBUTION_UNKNOWN",
+            AttributionStatus == "OBSERVED", "ATTRIBUTION_NEEDS_STRENGTHENING",
+            AttributionStatus == "ATTRIBUTED", "INCREMENTAL_PROOF_OPPORTUNITY",
+            "EVIDENCE_NEEDS_REVIEW"
+        )
+    | extend
+        ProofNeeded = case(
+            GapType == "MISSING_EVIDENCE",
+                "Collect direct evidence for the outcome.",
+            GapType == "MODELED_ONLY",
+                "Observe the outcome in production.",
+            GapType == "ATTRIBUTION_UNKNOWN",
+                "Define and execute an attribution method.",
+            GapType == "ATTRIBUTION_NEEDS_STRENGTHENING",
+                "Use a stronger comparison or experiment to support attribution.",
+            GapType == "INCREMENTAL_PROOF_OPPORTUNITY",
+                "Establish a credible counterfactual to estimate incremental impact.",
+            "Review the evidence and attribution supporting this claim."
+        )
+    | project
+        RecordType = "OUTCOME",
+        ClaimId = OutcomeId,
+        Metric,
+        EvidenceStatus,
+        AttributionStatus,
+        GapType,
+        ProofNeeded;
+
+let ValueGaps =
+    ValueEvidence
+    | where WorkloadId == workloadId and Period == period
+    | where EvidenceStatus != "INCREMENTAL"
+    | extend
+        GapType = case(
+            EvidenceStatus == "UNKNOWN", "MISSING_EVIDENCE",
+            EvidenceStatus == "MODELED", "MODELED_VALUE_ONLY",
+            EvidenceStatus == "OBSERVED", "VALUE_NOT_ATTRIBUTED",
+            EvidenceStatus == "ATTRIBUTED", "INCREMENTAL_PROOF_OPPORTUNITY",
+            "EVIDENCE_NEEDS_REVIEW"
+        )
+    | extend
+        ProofNeeded = case(
+            GapType == "MISSING_EVIDENCE",
+                "Collect evidence supporting the value claim.",
+            GapType == "MODELED_VALUE_ONLY",
+                "Validate the modeled value against observed business results.",
+            GapType == "VALUE_NOT_ATTRIBUTED",
+                "Establish whether the observed value is attributable to the AI workload.",
+            GapType == "INCREMENTAL_PROOF_OPPORTUNITY",
+                "Estimate the value relative to a credible counterfactual.",
+            "Review the evidence supporting this value claim."
+        )
+    | project
+        RecordType = "VALUE",
+        ClaimId = ValueId,
+        Metric,
+        EvidenceStatus,
+        AttributionStatus = "",
+        GapType,
+        ProofNeeded;
+
+union OutcomeGaps, ValueGaps
+| order by RecordType asc, ClaimId asc

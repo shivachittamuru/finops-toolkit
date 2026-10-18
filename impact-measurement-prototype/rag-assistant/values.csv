@@ -1,0 +1,4 @@
+WorkloadId,Period,ValueId,Metric,Unit,Amount,ValueMethod,DerivedFromOutcomeIds,EvidenceStatus
+rag-assistant,2026-09,productivity_value,employee_productivity_value,USD,200000,modeled_from_time_saved,time_to_answer,MODELED
+rag-assistant,2026-09,avoided_escalation_cost,avoided_support_cost,USD,80000,modeled_from_escalation_reduction,escalation_rate,MODELED
+rag-assistant,2026-09,task_completion_value,task_completion_value,USD,140000,modeled_from_task_completion_improvement,task_completion_rate,MODELED
