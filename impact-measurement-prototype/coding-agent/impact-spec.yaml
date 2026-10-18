@@ -69,11 +69,12 @@ values:
     evidence_sources:
       - workforce_cost_model
 
-  - id: incremental_delivery_value
-    metric: incremental_delivery_value
+  - id: delivery_capacity_value
+    metric: delivery_capacity_value
     unit: USD
-    method: modeled_from_additional_delivery
+    method: modeled_from_deployment_throughput
     derived_from_outcomes:
       - deployment_throughput
     evidence_sources:
       - business_value_model
+

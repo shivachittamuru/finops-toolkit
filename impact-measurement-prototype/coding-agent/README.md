@@ -62,7 +62,7 @@ The sample includes:
 
 - engineering capacity value,
 - avoided rework cost,
-- incremental delivery value.
+- Delivery Capacity Value.
 
 All three value claims are modeled in this prototype.
 
@@ -89,3 +89,4 @@ FinOps / FOCUS Cost
                 ↓
            Impact Record
 ```
+

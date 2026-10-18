@@ -55,9 +55,9 @@ let ValueEvidence =
         70000.0, "modeled_from_rework_reduction",
         "rework_rate", "MODELED",
 
-        "coding-agent", "2026-09", "incremental_delivery_value",
-        "incremental_delivery_value", "USD",
-        120000.0, "modeled_from_additional_delivery",
+        "coding-agent", "2026-09", "delivery_capacity_value",
+        "delivery_capacity_value", "USD",
+        120000.0, "modeled_from_deployment_throughput",
         "deployment_throughput", "MODELED"
     ];
 

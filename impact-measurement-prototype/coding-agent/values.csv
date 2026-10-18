@@ -1,4 +1,4 @@
 WorkloadId,Period,ValueId,Metric,Unit,Amount,ValueMethod,DerivedFromOutcomeIds,EvidenceStatus
 coding-agent,2026-09,engineering_capacity_value,engineering_capacity_value,USD,180000,modeled_from_cycle_time_reduction,cycle_time,MODELED
 coding-agent,2026-09,avoided_rework_cost,avoided_engineering_rework_cost,USD,70000,modeled_from_rework_reduction,rework_rate,MODELED
-coding-agent,2026-09,incremental_delivery_value,incremental_delivery_value,USD,120000,modeled_from_additional_delivery,deployment_throughput,MODELED
+coding-agent,2026-09,delivery_capacity_value,delivery_capacity_value,USD,120000,modeled_from_deployment_throughput,deployment_throughput,MODELED

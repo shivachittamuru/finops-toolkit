@@ -66,10 +66,10 @@
 - **Derived From:** `rework_rate`
 - **Evidence Status:** MODELED
 
-### Incremental Delivery Value
+### Delivery Capacity Value
 
 - **Amount:** $120,000
-- **Method:** modeled_from_additional_delivery
+- **Method:** modeled_from_deployment_throughput
 - **Derived From:** `deployment_throughput`
 - **Evidence Status:** MODELED
 
@@ -88,3 +88,4 @@ The economic value claims remain modeled and should not be treated as realized R
 The rework outcome also has weaker attribution evidence than the cycle-time and deployment-throughput outcomes.
 
 A downstream decision process could use this Impact Record to identify where stronger evidence would be most valuable before scaling or making ROI claims.
+
