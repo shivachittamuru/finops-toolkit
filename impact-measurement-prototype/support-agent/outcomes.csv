@@ -1,0 +1,4 @@
+WorkloadId,Period,OutcomeId,Metric,Unit,BaselineValue,ObservedValue,OutcomeChange,EvidenceStatus,AttributionMethod,AttributionStatus
+support-agent,2026-09,handling_time,average_handling_time,minutes,12.0,9.0,-25%,OBSERVED,before_after,ATTRIBUTED
+support-agent,2026-09,escalation_rate,escalation_rate,percent,18,14,-4pp,OBSERVED,matched_comparison,ATTRIBUTED
+support-agent,2026-09,conversion_rate,conversion_rate,percent,11,13,+2pp,INCREMENTAL,controlled_experiment,INCREMENTAL

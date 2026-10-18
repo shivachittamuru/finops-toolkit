@@ -1,0 +1,77 @@
+workload:
+  id: support-agent
+  name: Customer Support Agent
+  type: customer_support_agent
+
+work:
+  unit_type: customer_case
+  description: One customer support case handled by the AI-assisted workflow
+
+accepted_work:
+  definition: Case resolved correctly without human escalation
+  evidence_sources:
+    - support_platform
+    - quality_evaluation
+
+outcomes:
+  - id: handling_time
+    metric: average_handling_time
+    unit: minutes
+    direction: decrease
+    evidence_sources:
+      - support_platform
+    attribution:
+      method: before_after
+      evidence_sources:
+        - support_platform
+
+  - id: escalation_rate
+    metric: escalation_rate
+    unit: percent
+    direction: decrease
+    evidence_sources:
+      - support_platform
+    attribution:
+      method: matched_comparison
+      evidence_sources:
+        - support_platform
+
+  - id: conversion_rate
+    metric: conversion_rate
+    unit: percent
+    direction: increase
+    evidence_sources:
+      - crm
+    attribution:
+      method: controlled_experiment
+      evidence_sources:
+        - experiment_results
+
+values:
+  - id: capacity_value
+    metric: labor_capacity_value
+    unit: USD
+    method: modeled_from_time_saved
+    derived_from_outcomes:
+      - handling_time
+    evidence_sources:
+      - workforce_cost_model
+
+  - id: avoided_escalation_cost
+    metric: avoided_operational_cost
+    unit: USD
+    method: modeled_from_escalation_reduction
+    derived_from_outcomes:
+      - escalation_rate
+    evidence_sources:
+      - support_cost_model
+
+  - id: incremental_revenue
+    metric: incremental_revenue
+    unit: USD
+    method: controlled_experiment
+    derived_from_outcomes:
+      - conversion_rate
+    evidence_sources:
+      - crm
+      - experiment_results

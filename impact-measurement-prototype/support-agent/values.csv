@@ -1,0 +1,4 @@
+WorkloadId,Period,ValueId,Metric,Unit,Amount,ValueMethod,DerivedFromOutcomeIds,EvidenceStatus
+support-agent,2026-09,capacity_value,labor_capacity_value,USD,150000,modeled_from_time_saved,handling_time,MODELED
+support-agent,2026-09,avoided_escalation_cost,avoided_operational_cost,USD,60000,modeled_from_escalation_reduction,escalation_rate,MODELED
+support-agent,2026-09,incremental_revenue,incremental_revenue,USD,90000,controlled_experiment,conversion_rate,INCREMENTAL
