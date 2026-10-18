@@ -1,0 +1,103 @@
+let workloadId = "coding-agent";
+let period = "2026-09";
+
+let OutcomeEvidence =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        OutcomeId:string,
+        Metric:string,
+        Unit:string,
+        BaselineValue:real,
+        ObservedValue:real,
+        OutcomeChange:string,
+        EvidenceStatus:string,
+        AttributionMethod:string,
+        AttributionStatus:string
+    )
+    [
+        "coding-agent", "2026-09", "cycle_time",
+        "engineering_task_cycle_time", "hours",
+        16.0, 12.0, "-25%",
+        "OBSERVED", "matched_comparison", "ATTRIBUTED",
+
+        "coding-agent", "2026-09", "rework_rate",
+        "engineering_rework_rate", "percent",
+        20.0, 15.0, "-5pp",
+        "OBSERVED", "before_after", "OBSERVED",
+
+        "coding-agent", "2026-09", "deployment_throughput",
+        "successful_deployments_per_period", "deployments",
+        80.0, 96.0, "+20%",
+        "OBSERVED", "matched_comparison", "ATTRIBUTED"
+    ];
+
+let ValueEvidence =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        ValueId:string,
+        Metric:string,
+        Unit:string,
+        Amount:real,
+        ValueMethod:string,
+        DerivedFromOutcomeIds:string,
+        EvidenceStatus:string
+    )
+    [
+        "coding-agent", "2026-09", "engineering_capacity_value",
+        "engineering_capacity_value", "USD",
+        180000.0, "modeled_from_cycle_time_reduction",
+        "cycle_time", "MODELED",
+
+        "coding-agent", "2026-09", "avoided_rework_cost",
+        "avoided_engineering_rework_cost", "USD",
+        70000.0, "modeled_from_rework_reduction",
+        "rework_rate", "MODELED",
+
+        "coding-agent", "2026-09", "incremental_delivery_value",
+        "incremental_delivery_value", "USD",
+        120000.0, "modeled_from_additional_delivery",
+        "deployment_throughput", "MODELED"
+    ];
+
+let OutcomeSummary =
+    OutcomeEvidence
+    | where WorkloadId == workloadId and Period == period
+    | project
+        RecordType = "OUTCOME",
+        WorkloadId,
+        Period,
+        ClaimId = OutcomeId,
+        Metric,
+        Unit,
+        BaselineValue,
+        ObservedValue,
+        Change = OutcomeChange,
+        Amount = real(null),
+        Method = AttributionMethod,
+        EvidenceStatus,
+        AttributionStatus,
+        DerivedFromOutcomeIds = "";
+
+let ValueSummary =
+    ValueEvidence
+    | where WorkloadId == workloadId and Period == period
+    | project
+        RecordType = "VALUE",
+        WorkloadId,
+        Period,
+        ClaimId = ValueId,
+        Metric,
+        Unit,
+        BaselineValue = real(null),
+        ObservedValue = real(null),
+        Change = "",
+        Amount,
+        Method = ValueMethod,
+        EvidenceStatus,
+        AttributionStatus = "",
+        DerivedFromOutcomeIds;
+
+union OutcomeSummary, ValueSummary
+| order by RecordType asc, ClaimId asc

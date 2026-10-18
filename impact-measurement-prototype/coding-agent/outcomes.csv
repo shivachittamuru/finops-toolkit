@@ -1,0 +1,4 @@
+WorkloadId,Period,OutcomeId,Metric,Unit,BaselineValue,ObservedValue,OutcomeChange,EvidenceStatus,AttributionMethod,AttributionStatus
+coding-agent,2026-09,cycle_time,engineering_task_cycle_time,hours,16,12,-25%,OBSERVED,matched_comparison,ATTRIBUTED
+coding-agent,2026-09,rework_rate,engineering_rework_rate,percent,20,15,-5pp,OBSERVED,before_after,OBSERVED
+coding-agent,2026-09,deployment_throughput,successful_deployments_per_period,deployments,80,96,+20%,OBSERVED,matched_comparison,ATTRIBUTED

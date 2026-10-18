@@ -1,0 +1,63 @@
+// ============================================================================
+// Query: AI Economics Impact Workload Summary
+//
+// Prototype workload: coding-agent
+// Prototype period: 2026-09
+// ============================================================================
+
+let workloadId = "coding-agent";
+let period = "2026-09";
+
+let WorkEvidence =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        AttemptedWorkUnits:long,
+        AcceptedWorkUnits:long
+    )
+    [
+        "coding-agent", "2026-09", 1200, 900
+    ];
+
+let WorkloadCost =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        EffectiveCost:real
+    )
+    [
+        "coding-agent", "2026-09", 45000.0
+    ];
+
+let WorkSummary =
+    WorkEvidence
+    | where WorkloadId == workloadId and Period == period
+    | extend
+        AcceptanceRate =
+            iff(
+                AttemptedWorkUnits == 0,
+                real(null),
+                todouble(AcceptedWorkUnits) / todouble(AttemptedWorkUnits)
+            );
+
+let CostSummary =
+    WorkloadCost
+    | where WorkloadId == workloadId and Period == period;
+
+WorkSummary
+| join kind=leftouter CostSummary on WorkloadId, Period
+| extend
+    CostPerAcceptedWorkUnit =
+        iff(
+            AcceptedWorkUnits == 0,
+            real(null),
+            EffectiveCost / todouble(AcceptedWorkUnits)
+        )
+| project
+    WorkloadId,
+    Period,
+    AttemptedWorkUnits,
+    AcceptedWorkUnits,
+    AcceptanceRate,
+    EffectiveCost,
+    CostPerAcceptedWorkUnit

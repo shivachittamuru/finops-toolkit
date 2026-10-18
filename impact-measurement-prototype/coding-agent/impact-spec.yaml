@@ -1,0 +1,79 @@
+workload:
+  id: coding-agent
+  name: AI Coding Agent
+  type: software_development_agent
+
+work:
+  unit_type: engineering_task
+  description: One software engineering task assigned to an AI-assisted development workflow
+
+accepted_work:
+  definition: Engineering task completed with required tests passing and accepted through the defined review process
+  evidence_sources:
+    - source_control
+    - ci_pipeline
+    - code_review
+
+outcomes:
+  - id: cycle_time
+    metric: engineering_task_cycle_time
+    unit: hours
+    direction: decrease
+    evidence_sources:
+      - work_tracking_system
+      - source_control
+    attribution:
+      method: matched_comparison
+      evidence_sources:
+        - work_tracking_system
+
+  - id: rework_rate
+    metric: engineering_rework_rate
+    unit: percent
+    direction: decrease
+    evidence_sources:
+      - source_control
+      - work_tracking_system
+    attribution:
+      method: before_after
+      evidence_sources:
+        - work_tracking_system
+
+  - id: deployment_throughput
+    metric: successful_deployments_per_period
+    unit: deployments
+    direction: increase
+    evidence_sources:
+      - ci_cd_system
+    attribution:
+      method: matched_comparison
+      evidence_sources:
+        - ci_cd_system
+
+values:
+  - id: engineering_capacity_value
+    metric: engineering_capacity_value
+    unit: USD
+    method: modeled_from_cycle_time_reduction
+    derived_from_outcomes:
+      - cycle_time
+    evidence_sources:
+      - workforce_cost_model
+
+  - id: avoided_rework_cost
+    metric: avoided_engineering_rework_cost
+    unit: USD
+    method: modeled_from_rework_reduction
+    derived_from_outcomes:
+      - rework_rate
+    evidence_sources:
+      - workforce_cost_model
+
+  - id: incremental_delivery_value
+    metric: incremental_delivery_value
+    unit: USD
+    method: modeled_from_additional_delivery
+    derived_from_outcomes:
+      - deployment_throughput
+    evidence_sources:
+      - business_value_model
