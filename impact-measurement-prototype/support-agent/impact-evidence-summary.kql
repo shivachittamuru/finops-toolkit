@@ -1,0 +1,139 @@
+// ============================================================================
+// Query: AI Economics Impact Evidence Summary
+//
+// Purpose:
+// Shows business outcomes and economic value claims for a workload while
+// preserving evidence status and attribution independently.
+//
+// Prototype workload: support-agent
+// Prototype period: 2026-09
+//
+// NOTE:
+// - Outcome and value claims are kept as separate result sets.
+// - Do not flatten outcomes and values into one many-to-many join.
+// - Do not sum modeled and incremental value into a single "ROI" number.
+// ============================================================================
+
+let workloadId = "support-agent";
+let period = "2026-09";
+
+// -----------------------------------------------------------------------------
+// 1. Outcome evidence
+// -----------------------------------------------------------------------------
+
+let OutcomeEvidence =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        OutcomeId:string,
+        Metric:string,
+        Unit:string,
+        BaselineValue:real,
+        ObservedValue:real,
+        OutcomeChange:string,
+        EvidenceStatus:string,
+        AttributionMethod:string,
+        AttributionStatus:string
+    )
+    [
+        "support-agent", "2026-09", "handling_time",
+        "average_handling_time", "minutes",
+        12.0, 9.0, "-25%",
+        "OBSERVED", "before_after", "ATTRIBUTED",
+
+        "support-agent", "2026-09", "escalation_rate",
+        "escalation_rate", "percent",
+        18.0, 14.0, "-4pp",
+        "OBSERVED", "matched_comparison", "ATTRIBUTED",
+
+        "support-agent", "2026-09", "conversion_rate",
+        "conversion_rate", "percent",
+        11.0, 13.0, "+2pp",
+        "INCREMENTAL", "controlled_experiment", "INCREMENTAL"
+    ];
+
+// -----------------------------------------------------------------------------
+// 2. Economic value evidence
+// -----------------------------------------------------------------------------
+
+let ValueEvidence =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        ValueId:string,
+        Metric:string,
+        Unit:string,
+        Amount:real,
+        ValueMethod:string,
+        DerivedFromOutcomeIds:string,
+        EvidenceStatus:string
+    )
+    [
+        "support-agent", "2026-09", "capacity_value",
+        "labor_capacity_value", "USD",
+        150000.0, "modeled_from_time_saved",
+        "handling_time", "MODELED",
+
+        "support-agent", "2026-09", "avoided_escalation_cost",
+        "avoided_operational_cost", "USD",
+        60000.0, "modeled_from_escalation_reduction",
+        "escalation_rate", "MODELED",
+
+        "support-agent", "2026-09", "incremental_revenue",
+        "incremental_revenue", "USD",
+        90000.0, "controlled_experiment",
+        "conversion_rate", "INCREMENTAL"
+    ];
+
+// -----------------------------------------------------------------------------
+// 3. Outcome summary
+// -----------------------------------------------------------------------------
+
+let OutcomeSummary =
+    OutcomeEvidence
+    | where WorkloadId == workloadId and Period == period
+    | project
+        RecordType = "OUTCOME",
+        WorkloadId,
+        Period,
+        ClaimId = OutcomeId,
+        Metric,
+        Unit,
+        BaselineValue,
+        ObservedValue,
+        Change = OutcomeChange,
+        Amount = real(null),
+        Method = AttributionMethod,
+        EvidenceStatus,
+        AttributionStatus,
+        DerivedFromOutcomeIds = "";
+
+// -----------------------------------------------------------------------------
+// 4. Value summary
+// -----------------------------------------------------------------------------
+
+let ValueSummary =
+    ValueEvidence
+    | where WorkloadId == workloadId and Period == period
+    | project
+        RecordType = "VALUE",
+        WorkloadId,
+        Period,
+        ClaimId = ValueId,
+        Metric,
+        Unit,
+        BaselineValue = real(null),
+        ObservedValue = real(null),
+        Change = "",
+        Amount,
+        Method = ValueMethod,
+        EvidenceStatus,
+        AttributionStatus = "",
+        DerivedFromOutcomeIds;
+
+// -----------------------------------------------------------------------------
+// 5. Combined claim-oriented view
+// -----------------------------------------------------------------------------
+
+union OutcomeSummary, ValueSummary
+| order by RecordType asc, ClaimId asc

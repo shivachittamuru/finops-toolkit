@@ -1,0 +1,166 @@
+// ============================================================================
+// Query: AI Economics Impact Evidence Gaps
+//
+// Purpose:
+// Identifies outcome and value claims where stronger evidence could
+// increase confidence in the impact claim.
+//
+// Prototype workload: support-agent
+// Prototype period: 2026-09
+//
+// The intent is not to score the workload.
+// The intent is to show what should be proved next.
+// ============================================================================
+
+let workloadId = "support-agent";
+let period = "2026-09";
+
+// -----------------------------------------------------------------------------
+// 1. Outcome evidence
+// -----------------------------------------------------------------------------
+
+let OutcomeEvidence =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        OutcomeId:string,
+        Metric:string,
+        Unit:string,
+        BaselineValue:real,
+        ObservedValue:real,
+        OutcomeChange:string,
+        EvidenceStatus:string,
+        AttributionMethod:string,
+        AttributionStatus:string
+    )
+    [
+        "support-agent", "2026-09", "handling_time",
+        "average_handling_time", "minutes",
+        12.0, 9.0, "-25%",
+        "OBSERVED", "before_after", "ATTRIBUTED",
+
+        "support-agent", "2026-09", "escalation_rate",
+        "escalation_rate", "percent",
+        18.0, 14.0, "-4pp",
+        "OBSERVED", "matched_comparison", "ATTRIBUTED",
+
+        "support-agent", "2026-09", "conversion_rate",
+        "conversion_rate", "percent",
+        11.0, 13.0, "+2pp",
+        "INCREMENTAL", "controlled_experiment", "INCREMENTAL"
+    ];
+
+// -----------------------------------------------------------------------------
+// 2. Value evidence
+// -----------------------------------------------------------------------------
+
+let ValueEvidence =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        ValueId:string,
+        Metric:string,
+        Unit:string,
+        Amount:real,
+        ValueMethod:string,
+        DerivedFromOutcomeIds:string,
+        EvidenceStatus:string
+    )
+    [
+        "support-agent", "2026-09", "capacity_value",
+        "labor_capacity_value", "USD",
+        150000.0, "modeled_from_time_saved",
+        "handling_time", "MODELED",
+
+        "support-agent", "2026-09", "avoided_escalation_cost",
+        "avoided_operational_cost", "USD",
+        60000.0, "modeled_from_escalation_reduction",
+        "escalation_rate", "MODELED",
+
+        "support-agent", "2026-09", "incremental_revenue",
+        "incremental_revenue", "USD",
+        90000.0, "controlled_experiment",
+        "conversion_rate", "INCREMENTAL"
+    ];
+
+// -----------------------------------------------------------------------------
+// 3. Outcome proof gaps
+// -----------------------------------------------------------------------------
+
+let OutcomeGaps =
+    OutcomeEvidence
+    | where WorkloadId == workloadId and Period == period
+    | where EvidenceStatus != "INCREMENTAL"
+        or AttributionStatus != "INCREMENTAL"
+    | extend
+        GapType = case(
+            EvidenceStatus == "UNKNOWN", "MISSING_EVIDENCE",
+            EvidenceStatus == "MODELED", "MODELED_ONLY",
+            AttributionStatus == "UNKNOWN", "ATTRIBUTION_UNKNOWN",
+            AttributionStatus == "ATTRIBUTED", "INCREMENTAL_PROOF_OPPORTUNITY",
+            "EVIDENCE_NEEDS_REVIEW"
+        )
+    | extend
+        ProofNeeded = case(
+            GapType == "MISSING_EVIDENCE",
+                "Collect direct evidence for the outcome.",
+            GapType == "MODELED_ONLY",
+                "Observe the outcome in production.",
+            GapType == "ATTRIBUTION_UNKNOWN",
+                "Define and execute an attribution method.",
+            GapType == "INCREMENTAL_PROOF_OPPORTUNITY",
+                "Establish a credible counterfactual using a stronger comparison or experiment.",
+            "Review the evidence and attribution supporting this claim."
+        )
+    | project
+        RecordType = "OUTCOME",
+        ClaimId = OutcomeId,
+        Metric,
+        EvidenceStatus,
+        AttributionStatus,
+        GapType,
+        ProofNeeded;
+
+// -----------------------------------------------------------------------------
+// 4. Value proof gaps
+// -----------------------------------------------------------------------------
+
+let ValueGaps =
+    ValueEvidence
+    | where WorkloadId == workloadId and Period == period
+    | where EvidenceStatus != "INCREMENTAL"
+    | extend
+        GapType = case(
+            EvidenceStatus == "UNKNOWN", "MISSING_EVIDENCE",
+            EvidenceStatus == "MODELED", "MODELED_VALUE_ONLY",
+            EvidenceStatus == "OBSERVED", "VALUE_NOT_ATTRIBUTED",
+            EvidenceStatus == "ATTRIBUTED", "INCREMENTAL_PROOF_OPPORTUNITY",
+            "EVIDENCE_NEEDS_REVIEW"
+        )
+    | extend
+        ProofNeeded = case(
+            GapType == "MISSING_EVIDENCE",
+                "Collect evidence supporting the value claim.",
+            GapType == "MODELED_VALUE_ONLY",
+                "Validate the modeled value against observed business results.",
+            GapType == "VALUE_NOT_ATTRIBUTED",
+                "Establish whether the observed value is attributable to the AI workload.",
+            GapType == "INCREMENTAL_PROOF_OPPORTUNITY",
+                "Estimate the value relative to a credible counterfactual.",
+            "Review the evidence supporting this value claim."
+        )
+    | project
+        RecordType = "VALUE",
+        ClaimId = ValueId,
+        Metric,
+        EvidenceStatus,
+        AttributionStatus = "",
+        GapType,
+        ProofNeeded;
+
+// -----------------------------------------------------------------------------
+// 5. Proof-needed view
+// -----------------------------------------------------------------------------
+
+union OutcomeGaps, ValueGaps
+| order by RecordType asc, ClaimId asc

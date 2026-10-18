@@ -1,0 +1,96 @@
+// ============================================================================
+// Query: AI Economics Impact Workload Summary
+//
+// Purpose:
+// Demonstrates how FinOps cost can be combined with Accepted Work
+// to calculate workload-level unit economics.
+//
+// Prototype workload: support-agent
+// Prototype period: 2026-09
+//
+// NOTE:
+// - Work evidence is represented with inline datatable() values for now.
+// - In production, this would be replaced by normalized evidence sources.
+// - FinOps / FOCUS remains the authoritative source for cost.
+// ============================================================================
+
+let workloadId = "support-agent";
+let period = "2026-09";
+
+// -----------------------------------------------------------------------------
+// 1. Work evidence
+// -----------------------------------------------------------------------------
+
+let WorkEvidence =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        AttemptedWorkUnits:long,
+        AcceptedWorkUnits:long
+    )
+    [
+        "support-agent", "2026-09", 50000, 38000
+    ];
+
+// -----------------------------------------------------------------------------
+// 2. FinOps cost
+//
+// Prototype value only.
+//
+// In production, replace this block with Costs() plus the appropriate
+// workload allocation/mapping logic.
+// -----------------------------------------------------------------------------
+
+let WorkloadCost =
+    datatable(
+        WorkloadId:string,
+        Period:string,
+        EffectiveCost:real
+    )
+    [
+        "support-agent", "2026-09", 80000.0
+    ];
+
+// -----------------------------------------------------------------------------
+// 3. Calculate workload economics
+// -----------------------------------------------------------------------------
+
+let WorkSummary =
+    WorkEvidence
+    | where WorkloadId == workloadId and Period == period
+    | extend
+        AcceptanceRate =
+            iff(
+                AttemptedWorkUnits == 0,
+                real(null),
+                todouble(AcceptedWorkUnits) / todouble(AttemptedWorkUnits)
+            );
+
+let CostSummary =
+    WorkloadCost
+    | where WorkloadId == workloadId and Period == period;
+
+let UnitEconomics =
+    WorkSummary
+    | join kind=leftouter CostSummary on WorkloadId, Period
+    | extend
+        CostPerAcceptedWorkUnit =
+            iff(
+                AcceptedWorkUnits == 0,
+                real(null),
+                EffectiveCost / todouble(AcceptedWorkUnits)
+            );
+
+// -----------------------------------------------------------------------------
+// 4. Normalized workload summary
+// -----------------------------------------------------------------------------
+
+UnitEconomics
+| project
+    WorkloadId,
+    Period,
+    AttemptedWorkUnits,
+    AcceptedWorkUnits,
+    AcceptanceRate,
+    EffectiveCost,
+    CostPerAcceptedWorkUnit
