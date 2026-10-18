@@ -1,0 +1,10 @@
+WorkloadPeriodKey,WorkloadId,Period,OutcomeId,Metric,Unit,BaselineValue,ObservedValue,OutcomeChange,EvidenceStatus,AttributionMethod,AttributionStatus
+support-agent|2026-09,support-agent,2026-09,handling_time,average_handling_time,minutes,12,9,-25%,OBSERVED,before_after,ATTRIBUTED
+support-agent|2026-09,support-agent,2026-09,escalation_rate,escalation_rate,percent,18,14,-4pp,OBSERVED,matched_comparison,ATTRIBUTED
+support-agent|2026-09,support-agent,2026-09,conversion_rate,conversion_rate,percent,11,13,+2pp,INCREMENTAL,controlled_experiment,INCREMENTAL
+coding-agent|2026-09,coding-agent,2026-09,cycle_time,engineering_task_cycle_time,hours,16,12,-25%,OBSERVED,matched_comparison,ATTRIBUTED
+coding-agent|2026-09,coding-agent,2026-09,rework_rate,engineering_rework_rate,percent,20,15,-5pp,OBSERVED,before_after,OBSERVED
+coding-agent|2026-09,coding-agent,2026-09,deployment_throughput,successful_deployments_per_period,deployments,80,96,+20%,OBSERVED,matched_comparison,ATTRIBUTED
+rag-assistant|2026-09,rag-assistant,2026-09,task_completion_rate,user_task_completion_rate,percent,62,74,+12pp,OBSERVED,matched_comparison,ATTRIBUTED
+rag-assistant|2026-09,rag-assistant,2026-09,time_to_answer,average_time_to_answer,minutes,10,6,-40%,OBSERVED,before_after,OBSERVED
+rag-assistant|2026-09,rag-assistant,2026-09,escalation_rate,human_escalation_rate,percent,22,16,-6pp,OBSERVED,matched_comparison,ATTRIBUTED

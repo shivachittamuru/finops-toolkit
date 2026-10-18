@@ -1,0 +1,4 @@
+WorkloadPeriodKey,WorkloadId,WorkloadName,WorkloadType,Period,WorkUnitType,AttemptedWorkUnits,AcceptedWorkUnits,EffectiveCost
+support-agent|2026-09,support-agent,Customer Support Agent,customer_support_agent,2026-09,customer_case,50000,38000,80000
+coding-agent|2026-09,coding-agent,AI Coding Agent,software_development_agent,2026-09,engineering_task,1200,900,45000
+rag-assistant|2026-09,rag-assistant,Enterprise Knowledge Assistant,rag_knowledge_assistant,2026-09,user_question,20000,15000,60000

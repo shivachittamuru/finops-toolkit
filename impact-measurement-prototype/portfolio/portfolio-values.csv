@@ -1,0 +1,10 @@
+WorkloadPeriodKey,WorkloadId,Period,ValueId,Metric,Unit,Amount,ValueMethod,DerivedFromOutcomeIds,EvidenceStatus
+support-agent|2026-09,support-agent,2026-09,capacity_value,labor_capacity_value,USD,150000,modeled_from_time_saved,handling_time,MODELED
+support-agent|2026-09,support-agent,2026-09,avoided_escalation_cost,avoided_operational_cost,USD,60000,modeled_from_escalation_reduction,escalation_rate,MODELED
+support-agent|2026-09,support-agent,2026-09,incremental_revenue,incremental_revenue,USD,90000,controlled_experiment,conversion_rate,INCREMENTAL
+coding-agent|2026-09,coding-agent,2026-09,engineering_capacity_value,engineering_capacity_value,USD,180000,modeled_from_cycle_time_reduction,cycle_time,MODELED
+coding-agent|2026-09,coding-agent,2026-09,avoided_rework_cost,avoided_engineering_rework_cost,USD,70000,modeled_from_rework_reduction,rework_rate,MODELED
+coding-agent|2026-09,coding-agent,2026-09,delivery_capacity_value,delivery_capacity_value,USD,120000,modeled_from_deployment_throughput,deployment_throughput,MODELED
+rag-assistant|2026-09,rag-assistant,2026-09,productivity_value,employee_productivity_value,USD,200000,modeled_from_time_saved,time_to_answer,MODELED
+rag-assistant|2026-09,rag-assistant,2026-09,avoided_escalation_cost,avoided_support_cost,USD,80000,modeled_from_escalation_reduction,escalation_rate,MODELED
+rag-assistant|2026-09,rag-assistant,2026-09,task_completion_value,task_completion_value,USD,140000,modeled_from_task_completion_improvement,task_completion_rate,MODELED
